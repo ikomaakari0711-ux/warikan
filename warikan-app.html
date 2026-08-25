@@ -6,417 +6,223 @@
 <title>藍と紅の家計帳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F0EEE1;
-    --paper-deep:#E7E3D2;
+    --bg:#F4F1EA;
     --ink:#24344D;
     --ink-soft:#63728A;
     --kenya:#345C7C;
     --kenya-soft:#D8E2E9;
     --akari:#9C3F4E;
     --akari-soft:#EEDBDD;
-    --stamp:#BF3B30;
-    --card:#FBFAF3;
-    --line:#D8D2BC;
-    --shadow: 0 6px 18px rgba(36,52,77,0.09);
+    --accent:#BF3B30;
+    --card:#FFFFFF;
+    --line:#E2DDD3;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:
-      radial-gradient(1200px 600px at 10% -10%, rgba(52,92,124,0.05), transparent 60%),
-      radial-gradient(1200px 600px at 110% 10%, rgba(156,63,78,0.05), transparent 60%),
-      var(--paper);
-    color:var(--ink);
-    font-family:"Noto Sans JP", sans-serif;
-    min-height:100vh;
-    padding: 28px 16px 60px;
-  }
-  @media (prefers-reduced-motion: reduce){
-    *{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
-  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--ink);font-family:"Noto Sans JP",sans-serif;min-height:100vh;}
+  body{padding:24px 16px 60px;}
 
-  .book{
-    max-width: 700px;
-    margin: 0 auto;
-    background: var(--card);
-    border-radius: 4px 14px 14px 4px;
-    box-shadow: var(--shadow);
-    position: relative;
-    padding: 34px clamp(18px, 5vw, 46px) 40px;
-    border: 1px solid var(--line);
-  }
-  .book::before{
-    content:"";
-    position:absolute;
-    left:-1px; top:0; bottom:0;
-    width:20px;
-    border-radius:4px 0 0 4px;
-    background:
-      linear-gradient(90deg, rgba(36,52,77,0.12), transparent 90%),
-      repeating-radial-gradient(circle at 10px 0, var(--ink-soft) 0 2.2px, transparent 2.3px 34px);
-    background-position: 0 14px, 0 14px;
-    opacity: .55;
-  }
+  .wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
 
-  header{
-    padding-left: 14px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 20px;
-  }
-  h1{
-    font-family:"Shippori Mincho", serif;
-    font-weight:700;
-    font-size: clamp(24px, 5vw, 32px);
-    margin: 0 0 6px;
-    letter-spacing: .04em;
-  }
-  .sub{
-    color: var(--ink-soft);
-    font-size: 13px;
-    letter-spacing: .08em;
-  }
+  /* カード共通 */
+  .card{background:var(--card);border-radius:12px;border:1px solid var(--line);padding:20px;}
 
-  .sync-bar{
-    display:flex; align-items:center; justify-content:space-between;
-    gap:10px; flex-wrap:wrap;
-    padding-left:14px; margin-bottom: 24px;
-    font-size: 12px; color: var(--ink-soft);
-  }
-  .sync-bar button{
-    border:1px solid var(--line); background:#fff; color:var(--ink-soft);
-    border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer;
-  }
-  .sync-bar button:hover{ color:var(--ink); }
-  .sync-dot{ width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; background:#9AA6B2; }
-  .sync-dot.ok{ background:#3E8E5A; }
-  .sync-dot.err{ background:var(--stamp); }
+  /* セクション見出し */
+  .sec-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:14px;}
 
-  .config-warning{
-    margin: 0 0 24px 14px;
-    background: var(--akari-soft);
-    border: 1px solid var(--akari);
-    color: var(--ink);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-size: 13px;
-    line-height: 1.7;
+  /* 入力フォーム */
+  .cat-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
+  .chip{
+    padding:7px 13px;border-radius:20px;border:1.5px solid var(--line);
+    background:#fff;font-size:13px;font-family:"Noto Sans JP",sans-serif;
+    color:var(--ink-soft);cursor:pointer;transition:all .12s;
   }
-  .config-warning code{
-    background: rgba(255,255,255,0.6);
-    padding: 1px 5px;
-    border-radius: 4px;
+  .chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .other-input{
+    width:100%;margin-top:8px;padding:10px 12px;
+    border:1.5px solid var(--line);border-radius:8px;
+    font-size:14px;font-family:"Noto Sans JP",sans-serif;
+    color:var(--ink);background:var(--bg);outline:none;
+    display:none;
   }
+  .other-input:focus{border-color:var(--ink-soft);}
+  .other-input.show{display:block;}
 
-  section{ padding-left: 14px; margin-bottom: 30px; }
-  h2{
-    font-family:"Shippori Mincho", serif;
-    font-size: 17px;
-    font-weight: 700;
-    margin: 0 0 14px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  h2::before{
-    content:"";
-    width:6px;height:6px;
-    background:var(--stamp);
-    display:inline-block;
-    border-radius:1px;
-    transform: rotate(45deg);
-  }
+  .field-label{font-size:11px;color:var(--ink-soft);letter-spacing:.06em;margin:14px 0 8px;}
 
-  .form-card{
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 20px;
-  }
-  .field{ margin-bottom: 16px; }
-  .field label{
-    display:block;
-    font-size: 12px;
-    color: var(--ink-soft);
-    margin-bottom: 6px;
-    letter-spacing: .04em;
-  }
-  input[type=text], input[type=number]{
-    width:100%;
-    font-family:"Noto Sans JP", sans-serif;
-    font-size: 16px;
-    padding: 11px 12px;
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    background: var(--paper);
-    color: var(--ink);
-    outline:none;
-  }
-  input[type=text]:focus, input[type=number]:focus{
-    border-color: var(--ink-soft);
-    box-shadow: 0 0 0 3px rgba(36,52,77,0.08);
-  }
-  .payer-toggle{ display:flex; gap:10px; }
+  .payer-toggle{display:flex;gap:8px;}
   .payer-btn{
-    flex:1;
-    padding: 13px 10px;
-    border-radius: 8px;
-    border: 1.5px solid var(--line);
-    background: #fff;
-    font-family:"Noto Sans JP", sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor:pointer;
-    color: var(--ink-soft);
-    transition: all .15s ease;
+    flex:1;padding:12px;border-radius:8px;border:1.5px solid var(--line);
+    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:15px;
+    font-weight:500;cursor:pointer;color:var(--ink-soft);transition:all .12s;
   }
-  .payer-btn[data-active="true"][data-person="kenya"]{
-    background: var(--kenya-soft); border-color: var(--kenya); color: var(--kenya);
-  }
-  .payer-btn[data-active="true"][data-person="akari"]{
-    background: var(--akari-soft); border-color: var(--akari); color: var(--akari);
-  }
-  .amount-wrap{ position:relative; }
-  .amount-wrap span{
-    position:absolute; left:12px; top:50%; transform:translateY(-50%);
-    color:var(--ink-soft); font-size:15px;
-  }
-  .amount-wrap input{ padding-left: 30px; }
+  .payer-btn[data-active="true"][data-person="kenya"]{background:var(--kenya-soft);border-color:var(--kenya);color:var(--kenya);}
+  .payer-btn[data-active="true"][data-person="akari"]{background:var(--akari-soft);border-color:var(--akari);color:var(--akari);}
 
-  .stamp-btn{
-    width:100%;
-    margin-top: 6px;
-    padding: 14px;
-    border-radius: 8px;
-    border: none;
-    background: var(--stamp);
-    color: #fff;
-    font-family:"Shippori Mincho", serif;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    cursor:pointer;
-    box-shadow: 0 4px 0 rgba(150,45,35,0.5);
-    transition: transform .08s ease, box-shadow .08s ease;
+  .amount-wrap{position:relative;}
+  .amount-wrap .yen{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-soft);font-size:15px;}
+  .amount-wrap input{
+    width:100%;padding:12px 12px 12px 28px;
+    border:1.5px solid var(--line);border-radius:8px;
+    font-size:18px;font-family:"Noto Sans JP",sans-serif;
+    color:var(--ink);background:var(--bg);outline:none;
   }
-  .stamp-btn:active{ transform: translateY(3px); box-shadow: 0 1px 0 rgba(150,45,35,0.5); }
-  .stamp-btn:disabled{ background:#c9c2af; box-shadow:none; cursor:not-allowed; }
-  .form-msg{ font-size:12.5px; color:var(--stamp); margin-top:8px; min-height:16px; }
+  .amount-wrap input:focus{border-color:var(--ink-soft);}
 
-  .scale-card{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius: 10px;
-    padding: 20px 20px 14px;
-    text-align:center;
+  .submit-btn{
+    width:100%;margin-top:14px;padding:14px;border-radius:8px;border:none;
+    background:var(--accent);color:#fff;font-family:"Noto Sans JP",sans-serif;
+    font-size:16px;font-weight:700;letter-spacing:.06em;cursor:pointer;
+    box-shadow:0 3px 0 rgba(150,45,35,0.4);transition:transform .08s,box-shadow .08s;
   }
-  .scale-names{
-    display:flex; justify-content:space-between;
-    font-size: 14px; font-weight:500; margin-bottom: 4px;
-  }
-  .scale-names .kenya{ color:var(--kenya); }
-  .scale-names .akari{ color:var(--akari); }
-  .scale-totals{
-    display:flex; justify-content:space-between;
-    font-size: 20px; font-weight:700; margin-bottom: 6px;
-  }
-  .settle-text{
-    margin-top: 10px;
-    font-size: 14.5px;
-    color: var(--ink);
-    background: var(--paper);
-    border-radius: 8px;
-    padding: 10px 14px;
-    line-height: 1.6;
-  }
-  .settle-text b{ padding: 1px 4px; border-radius: 4px; }
-  .settle-text b.kenya{ color:var(--kenya); background:var(--kenya-soft); }
-  .settle-text b.akari{ color:var(--akari); background:var(--akari-soft); }
+  .submit-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(150,45,35,0.4);}
+  .submit-btn:disabled{background:#c0bab0;box-shadow:none;cursor:not-allowed;}
+  .form-msg{font-size:12px;color:var(--accent);margin-top:8px;min-height:16px;}
 
-  .budget-card{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius: 10px;
-    padding: 20px;
+  /* 収支バランス */
+  .balance-row{display:flex;gap:8px;}
+  .balance-person{
+    flex:1;padding:14px 16px;border-radius:10px;
   }
-  .budget-row{
-    display:flex; justify-content:space-between; align-items:baseline;
-    margin-bottom: 10px; flex-wrap:wrap; gap:6px;
-  }
-  .budget-row .label{ font-size:13px; color:var(--ink-soft); }
-  .budget-row .value{ font-size: 22px; font-weight:700; }
-  .progress-track{
-    width:100%; height:12px; border-radius:6px;
-    background: var(--paper-deep);
-    overflow:hidden; margin: 10px 0 6px;
-  }
-  .progress-fill{
-    height:100%; border-radius:6px;
-    background: linear-gradient(90deg, var(--kenya), var(--akari));
-    width:0%;
-    transition: width .3s ease;
-  }
-  .progress-note{ font-size:12.5px; color:var(--ink-soft); }
-  .budget-set{
-    display:flex; gap:8px; margin-top: 14px; align-items:center;
-  }
-  .budget-set input{ flex:1; }
-  .budget-set button{
-    padding: 10px 16px;
-    border-radius: 7px;
-    border: 1px solid var(--ink);
-    background: var(--ink);
-    color:#fff;
-    font-size: 13.5px;
-    cursor:pointer;
-    white-space:nowrap;
-  }
-  .budget-set button:hover{ opacity:.9; }
+  .balance-person.kenya{background:var(--kenya-soft);}
+  .balance-person.akari{background:var(--akari-soft);}
+  .balance-person .name{font-size:12px;font-weight:700;margin-bottom:4px;}
+  .balance-person.kenya .name{color:var(--kenya);}
+  .balance-person.akari .name{color:var(--akari);}
+  .balance-person .amount{font-size:22px;font-weight:700;}
+  .balance-person.kenya .amount{color:var(--kenya);}
+  .balance-person.akari .amount{color:var(--akari);}
 
-  .cat-list{ margin-top: 16px; }
-  .cat-row{ margin-bottom: 10px; }
-  .cat-row .cat-top{
-    display:flex; justify-content:space-between;
-    font-size: 13px; margin-bottom: 4px; color: var(--ink);
+  .settle-box{
+    margin-top:12px;padding:12px 14px;border-radius:8px;
+    background:var(--bg);font-size:14px;line-height:1.7;text-align:center;
   }
-  .cat-bar-track{ height:8px; background:var(--paper-deep); border-radius:4px; overflow:hidden; }
-  .cat-bar-fill{ height:100%; background:var(--ink-soft); border-radius:4px; }
+  .settle-box b{padding:1px 5px;border-radius:4px;}
+  .settle-box b.kenya{color:var(--kenya);background:var(--kenya-soft);}
+  .settle-box b.akari{color:var(--akari);background:var(--akari-soft);}
 
-  .ledger-card{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius: 10px;
-    overflow:hidden;
-  }
+  /* カテゴリ棒グラフ */
+  .cat-row{margin-bottom:12px;}
+  .cat-row:last-child{margin-bottom:0;}
+  .cat-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+  .cat-top .cat-name{color:var(--ink);}
+  .cat-top .cat-val{color:var(--ink-soft);font-weight:500;}
+  .bar-track{height:7px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--kenya),var(--akari));}
+
+  /* 記録一覧 */
   .tx-row{
-    display:flex; align-items:center; gap:10px;
-    padding: 12px 16px;
-    border-bottom: 1px dashed var(--line);
-    font-size: 14px;
+    display:flex;align-items:center;gap:10px;
+    padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;
   }
-  .tx-row:last-child{ border-bottom:none; }
-  .tx-date{ color: var(--ink-soft); font-size:12px; width:52px; flex-shrink:0; }
-  .tx-payer{
-    font-size:11px; font-weight:700; padding: 3px 8px; border-radius:20px; flex-shrink:0;
-  }
-  .tx-payer.kenya{ background:var(--kenya-soft); color:var(--kenya); }
-  .tx-payer.akari{ background:var(--akari-soft); color:var(--akari); }
-  .tx-cat{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .tx-amount{ font-weight:700; flex-shrink:0; }
-  .tx-del{
-    border:none; background:none; color:var(--ink-soft); cursor:pointer;
-    font-size:15px; padding:4px 6px; flex-shrink:0; border-radius:6px;
-  }
-  .tx-del:hover{ color:var(--stamp); background:var(--paper); }
+  .tx-row:last-child{border-bottom:none;}
+  .tx-date{color:var(--ink-soft);font-size:12px;width:44px;flex-shrink:0;}
+  .tx-payer{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
+  .tx-payer.kenya{background:var(--kenya-soft);color:var(--kenya);}
+  .tx-payer.akari{background:var(--akari-soft);color:var(--akari);}
+  .tx-cat{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tx-amount{font-weight:700;flex-shrink:0;}
+  .tx-del{border:none;background:none;color:var(--line);cursor:pointer;font-size:15px;padding:2px 6px;flex-shrink:0;border-radius:6px;}
+  .tx-del:hover{color:var(--accent);}
 
-  .empty{
-    padding: 26px 16px;
-    text-align:center;
-    color: var(--ink-soft);
-    font-size: 13.5px;
-    line-height:1.7;
+  .show-more-btn{
+    width:100%;margin-top:12px;padding:10px;border-radius:8px;
+    border:1.5px solid var(--line);background:#fff;
+    font-family:"Noto Sans JP",sans-serif;font-size:13px;color:var(--ink-soft);
+    cursor:pointer;
   }
-  .loading{ text-align:center; color:var(--ink-soft); font-size:13px; padding: 20px; }
-  .footnote{
-    text-align:center; font-size:11.5px; color:var(--ink-soft);
-    margin-top: 26px; letter-spacing:.03em;
-  }
+  .show-more-btn:hover{color:var(--ink);}
+
+  .empty{padding:20px 0;text-align:center;color:var(--ink-soft);font-size:13px;line-height:1.8;}
+  .loading{text-align:center;color:var(--ink-soft);font-size:13px;padding:20px 0;}
 </style>
 </head>
 <body>
-  <div class="book">
-    <header>
-      <h1>藍と紅の家計帳</h1>
-      <div class="sub">けんや × あかり — 夫婦の割り勘記録</div>
-    </header>
+<div class="wrap">
 
-    <div class="sync-bar">
-      <span id="syncStatus"><span class="sync-dot" id="syncDot"></span><span id="syncText">未接続</span></span>
-      <button onclick="refreshData()">↻ 今すぐ同期</button>
+  <!-- 入力フォーム -->
+  <div class="card">
+    <div class="sec-title">記録する</div>
+
+    <div class="field-label">項目</div>
+    <div class="cat-chips" id="catChips">
+      <button type="button" class="chip" data-cat="スーパー" onclick="selectCat(this)">スーパー</button>
+      <button type="button" class="chip" data-cat="100円ショップ" onclick="selectCat(this)">100円ショップ</button>
+      <button type="button" class="chip" data-cat="ドラッグストア" onclick="selectCat(this)">ドラッグストア</button>
+      <button type="button" class="chip" data-cat="Amazon" onclick="selectCat(this)">Amazon</button>
+      <button type="button" class="chip" data-cat="外食" onclick="selectCat(this)">外食</button>
+      <button type="button" class="chip" data-cat="移動費" onclick="selectCat(this)">移動費</button>
+      <button type="button" class="chip" data-cat="__other__" onclick="selectCat(this)">その他</button>
+    </div>
+    <input type="text" class="other-input" id="otherInput" placeholder="項目を入力…">
+
+    <div class="field-label">支払った人</div>
+    <div class="payer-toggle">
+      <button type="button" class="payer-btn" data-person="kenya" data-active="false" onclick="selectPayer('kenya')">けんや</button>
+      <button type="button" class="payer-btn" data-person="akari" data-active="false" onclick="selectPayer('akari')">あかり</button>
     </div>
 
-    <div class="config-warning" id="configWarning" style="display:none;">
-      ⚠️ まだ保存先(Googleスプレッドシート)に接続されていません。<br>
-      このファイルの中の <code>const APPS_SCRIPT_URL = "";</code> という行に、発行したウェブアプリのURLを貼り付けてから再度開いてください。
+    <div class="field-label">金額</div>
+    <div class="amount-wrap">
+      <span class="yen">¥</span>
+      <input type="number" id="amount" min="1" step="1" placeholder="0">
     </div>
 
-    <section>
-      <h2>記録する</h2>
-      <div class="form-card">
-        <div class="field">
-          <label for="category">項目</label>
-          <input type="text" id="category" list="cat-suggest" placeholder="例：スーパー、個人の買い物" autocomplete="off">
-          <datalist id="cat-suggest">
-            <option value="スーパー">
-            <option value="個人の買い物">
-            <option value="外食">
-            <option value="日用品">
-          </datalist>
-        </div>
-        <div class="field">
-          <label>支払った人</label>
-          <div class="payer-toggle">
-            <button type="button" class="payer-btn" data-person="kenya" data-active="false" onclick="selectPayer('kenya')">けんや</button>
-            <button type="button" class="payer-btn" data-person="akari" data-active="false" onclick="selectPayer('akari')">あかり</button>
-          </div>
-        </div>
-        <div class="field">
-          <label for="amount">金額</label>
-          <div class="amount-wrap">
-            <span>¥</span>
-            <input type="number" id="amount" min="1" step="1" placeholder="0">
-          </div>
-        </div>
-        <button class="stamp-btn" id="submitBtn" onclick="addTransaction()">記録する</button>
-        <div class="form-msg" id="formMsg"></div>
-      </div>
-    </section>
-
-    <section>
-      <h2>収支バランス</h2>
-      <div class="scale-card" id="scaleCard">
-        <div class="loading">読み込み中…</div>
-      </div>
-    </section>
-
-    <section>
-      <h2>今月の家計</h2>
-      <div class="budget-card" id="budgetCard">
-        <div class="loading">読み込み中…</div>
-      </div>
-    </section>
-
-    <section>
-      <h2>記録一覧</h2>
-      <div class="ledger-card" id="ledgerCard">
-        <div class="loading">読み込み中…</div>
-      </div>
-    </section>
-
-    <div class="footnote">データはGoogleスプレッドシートに保存されます。このリンクを知っている人はどなたでも閲覧・記録ができます</div>
+    <button class="submit-btn" id="submitBtn" onclick="addTransaction()">記録する</button>
+    <div class="form-msg" id="formMsg"></div>
   </div>
 
-<script>
-/* ▼▼▼ ここに、Google Apps Scriptで発行したウェブアプリのURLを貼り付けてください ▼▼▼ */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFbYE1y7-HJbJULoFVi-xwpxaDf7balcydp5vUiZ3UoxgURLGW8a0ii27Lc7xPqCW6/exec";
-/* ▲▲▲ 例: https://script.google.com/macros/s/xxxxxxx/exec ▲▲▲ */
+  <!-- 収支バランス -->
+  <div class="card">
+    <div class="sec-title">収支バランス</div>
+    <div id="scaleCard"><div class="loading">読み込み中…</div></div>
+  </div>
 
+  <!-- カテゴリ別 -->
+  <div class="card">
+    <div class="sec-title">カテゴリ別</div>
+    <div id="catCard"><div class="loading">読み込み中…</div></div>
+  </div>
+
+  <!-- 記録一覧 -->
+  <div class="card">
+    <div class="sec-title">記録一覧</div>
+    <div id="ledgerCard"><div class="loading">読み込み中…</div></div>
+  </div>
+
+</div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFbYE1y7-HJbJULoFVi-xwpxaDf7balcydp5vUiZ3UoxgURLGW8a0ii27Lc7xPqCW6/exec";
 const PEOPLE = { kenya: { label: "けんや" }, akari: { label: "あかり" } };
-const POLL_INTERVAL_MS = 20000;
+const POLL_MS = 20000;
+const LEDGER_DEFAULT = 5;
 
 let transactions = [];
-let monthlyBudget = null;
 let selectedPayer = null;
-let pollTimer = null;
+let selectedCat = null;
+let ledgerExpanded = false;
 
 function fmtYen(n){ return "¥" + Math.round(n).toLocaleString("ja-JP"); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
-function currentMonthKey(){ return new Date().toISOString().slice(0,7); }
 function fmtShortDate(iso){ const d = new Date(iso); return (d.getMonth()+1) + "/" + d.getDate(); }
 function escapeHtml(s){ const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+function selectCat(btn){
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+  btn.classList.add("active");
+  selectedCat = btn.dataset.cat;
+  const oi = document.getElementById("otherInput");
+  if(selectedCat === "__other__"){
+    oi.classList.add("show");
+    oi.focus();
+  } else {
+    oi.classList.remove("show");
+    oi.value = "";
+  }
+}
 
 function selectPayer(p){
   selectedPayer = p;
@@ -425,34 +231,7 @@ function selectPayer(p){
   });
 }
 
-function setSyncStatus(state, text){
-  document.getElementById("syncDot").className = "sync-dot " + (state || "");
-  document.getElementById("syncText").textContent = text;
-}
-
-function showFormMsg(msg){
-  document.getElementById("formMsg").textContent = msg;
-}
-
-async function refreshData(){
-  if(!APPS_SCRIPT_URL){
-    document.getElementById("configWarning").style.display = "block";
-    setSyncStatus("err", "未接続");
-    renderAll();
-    return;
-  }
-  document.getElementById("configWarning").style.display = "none";
-  setSyncStatus("", "同期中…");
-  try{
-    const data = await gasRequest({});
-    transactions = (data.transactions || []).sort((a,b) => (b.date+b.id).localeCompare(a.date+a.id));
-    monthlyBudget = data.budget || null;
-    setSyncStatus("ok", "同期済み ・ " + new Date().toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"}));
-  }catch(e){
-    setSyncStatus("err", "同期に失敗しました");
-  }
-  renderAll();
-}
+function showFormMsg(msg){ document.getElementById("formMsg").textContent = msg; }
 
 function gasRequest(params){
   return new Promise((resolve, reject) => {
@@ -471,32 +250,29 @@ function gasRequest(params){
     const p = new URLSearchParams({...params, callback: cbName});
     const script = document.createElement("script");
     script.src = APPS_SCRIPT_URL + "?" + p.toString();
-    script.onerror = () => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      reject(new Error("script error"));
-    };
+    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; reject(new Error("script error")); };
     document.head.appendChild(script);
   });
 }
 
-async function apiPost(payload){
-  await gasRequest(payload);
+async function refreshData(){
+  try{
+    const data = await gasRequest({});
+    transactions = (data.transactions || []).sort((a,b) => (b.date+b.id).localeCompare(a.date+a.id));
+  }catch(e){}
+  renderAll();
 }
 
 async function addTransaction(){
-  if(!APPS_SCRIPT_URL){
-    showFormMsg("先に保存先の接続設定を済ませてください。");
-    return;
-  }
-  const catInput = document.getElementById("category");
+  const otherInput = document.getElementById("otherInput");
   const amountInput = document.getElementById("amount");
-  const category = catInput.value.trim();
+  const category = (selectedCat === "__other__") ? otherInput.value.trim() : selectedCat;
   const amount = parseFloat(amountInput.value);
 
-  if(!category){ showFormMsg("項目を入力してください。"); return; }
+  if(!category){ showFormMsg("項目を選んでください。"); return; }
+  if(selectedCat === "__other__" && !category){ showFormMsg("項目を入力してください。"); return; }
   if(!selectedPayer){ showFormMsg("支払った人を選んでください。"); return; }
-  if(!amount || amount <= 0){ showFormMsg("金額を正しく入力してください。"); return; }
+  if(!amount || amount <= 0){ showFormMsg("金額を入力してください。"); return; }
 
   const btn = document.getElementById("submitBtn");
   btn.disabled = true;
@@ -511,42 +287,32 @@ async function addTransaction(){
   renderAll();
 
   try{
-    await apiPost({ action: "add", ...entry });
+    await gasRequest({ action: "add", ...entry });
     setTimeout(refreshData, 800);
   }catch(e){
-    showFormMsg("保存に失敗しました。通信環境をご確認ください。");
+    showFormMsg("保存に失敗しました。");
   }
 
-  catInput.value = "";
+  // リセット
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+  otherInput.classList.remove("show");
+  otherInput.value = "";
   amountInput.value = "";
+  selectedCat = null;
   selectedPayer = null;
-  document.querySelectorAll(".payer-btn").forEach(b=>b.dataset.active="false");
+  document.querySelectorAll(".payer-btn").forEach(b => b.dataset.active = "false");
   btn.disabled = false;
 }
 
 async function deleteTransaction(id){
   transactions = transactions.filter(t => t.id !== id);
   renderAll();
-  try{
-    await apiPost({ action: "delete", id });
-    setTimeout(refreshData, 800);
-  }catch(e){ /* will resync on next poll */ }
-}
-
-async function updateBudget(){
-  const input = document.getElementById("budgetInput");
-  const val = parseFloat(input.value);
-  monthlyBudget = (val && val > 0) ? val : null;
-  renderAll();
-  try{
-    await apiPost({ action: "setBudget", amount: monthlyBudget || 0 });
-    setTimeout(refreshData, 800);
-  }catch(e){ /* will resync on next poll */ }
+  try{ await gasRequest({ action: "delete", id }); setTimeout(refreshData, 800); }catch(e){}
 }
 
 function renderAll(){
   renderScale();
-  renderBudget();
+  renderCat();
   renderLedger();
 }
 
@@ -557,98 +323,66 @@ function renderScale(){
   const sum = totalKenya + totalAkari;
 
   if(sum === 0){
-    el.innerHTML = `<div class="empty">まだ記録がありません。<br>入力するとここに収支バランスが表示されます。</div>`;
+    el.innerHTML = `<div class="empty">記録するとここに表示されます。</div>`;
     return;
   }
 
   const diff = totalKenya - totalAkari;
-  const angle = sum > 0 ? Math.max(-14, Math.min(14, (diff/sum) * 14)) : 0;
-  const leftY = -angle * 1.6;
-  const rightY = angle * 1.6;
   const settle = Math.abs(diff) / 2;
-
   let settleHtml;
   if(Math.round(settle) === 0){
-    settleHtml = `ちょうど半分ずつ負担しています。精算の必要はありません。`;
-  }else if(diff > 0){
-    settleHtml = `<b class="akari">あかり</b>が<b class="kenya">けんや</b>に ${fmtYen(settle)} 渡すと精算されます。`;
-  }else{
-    settleHtml = `<b class="kenya">けんや</b>が<b class="akari">あかり</b>に ${fmtYen(settle)} 渡すと精算されます。`;
+    settleHtml = `ちょうど半々です。精算不要。`;
+  } else if(diff > 0){
+    settleHtml = `<b class="akari">あかり</b> → <b class="kenya">けんや</b> に ${fmtYen(settle)} 渡すと精算`;
+  } else {
+    settleHtml = `<b class="kenya">けんや</b> → <b class="akari">あかり</b> に ${fmtYen(settle)} 渡すと精算`;
   }
 
   el.innerHTML = `
-    <div class="scale-names"><span class="kenya">けんや</span><span class="akari">あかり</span></div>
-    <div class="scale-totals"><span style="color:var(--kenya)">${fmtYen(totalKenya)}</span><span style="color:var(--akari)">${fmtYen(totalAkari)}</span></div>
-    <svg viewBox="0 0 300 110" width="100%" height="120" style="max-width:320px">
-      <polygon points="150,86 138,110 162,110" fill="var(--ink-soft)" opacity="0.6"></polygon>
-      <line x1="150" y1="86" x2="150" y2="30" stroke="var(--ink-soft)" stroke-width="3"></line>
-      <g>
-        <line x1="60" y1="${30+leftY}" x2="240" y2="${30+rightY}" stroke="var(--ink)" stroke-width="3"></line>
-        <circle cx="60" cy="${30+leftY}" r="15" fill="var(--kenya)"></circle>
-        <circle cx="240" cy="${30+rightY}" r="15" fill="var(--akari)"></circle>
-      </g>
-    </svg>
-    <div class="settle-text">${settleHtml}</div>
+    <div class="balance-row">
+      <div class="balance-person kenya">
+        <div class="name">けんや</div>
+        <div class="amount">${fmtYen(totalKenya)}</div>
+      </div>
+      <div class="balance-person akari">
+        <div class="name">あかり</div>
+        <div class="amount">${fmtYen(totalAkari)}</div>
+      </div>
+    </div>
+    <div class="settle-box">${settleHtml}</div>
   `;
 }
 
-function renderBudget(){
-  const el = document.getElementById("budgetCard");
-  const monthKey = currentMonthKey();
-  const monthTx = transactions.filter(t => t.date.slice(0,7) === monthKey);
-  const monthTotal = monthTx.reduce((s,t)=>s+t.amount,0);
-
-  let progressHtml = "";
-  if(monthlyBudget){
-    const pct = Math.min(100, (monthTotal / monthlyBudget) * 100);
-    const remaining = monthlyBudget - monthTotal;
-    progressHtml = `
-      <div class="budget-row">
-        <span class="label">今月の予算</span>
-        <span class="value">${fmtYen(monthlyBudget)}</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="progress-note">${remaining >= 0 ? "残り " + fmtYen(remaining) : "予算を " + fmtYen(-remaining) + " 超過しています"}</div>
-    `;
-  }else{
-    progressHtml = `<div class="progress-note">予算を設定すると、残額を自動で表示します。</div>`;
+function renderCat(){
+  const el = document.getElementById("catCard");
+  if(transactions.length === 0){
+    el.innerHTML = `<div class="empty">記録するとここに表示されます。</div>`;
+    return;
   }
-
-  let catHtml = "";
-  if(monthTx.length > 0){
-    const byCat = {};
-    monthTx.forEach(t => { byCat[t.category] = (byCat[t.category]||0) + t.amount; });
-    const maxVal = Math.max(...Object.values(byCat));
-    const rows = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat, val])=>`
-      <div class="cat-row">
-        <div class="cat-top"><span>${escapeHtml(cat)}</span><span>${fmtYen(val)}</span></div>
-        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(val/maxVal)*100}%"></div></div>
+  const byCat = {};
+  transactions.forEach(t => { byCat[t.category] = (byCat[t.category]||0) + t.amount; });
+  const maxVal = Math.max(...Object.values(byCat));
+  const rows = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat, val])=>`
+    <div class="cat-row">
+      <div class="cat-top">
+        <span class="cat-name">${escapeHtml(cat)}</span>
+        <span class="cat-val">${fmtYen(val)}</span>
       </div>
-    `).join("");
-    catHtml = `<div class="cat-list">${rows}</div>`;
-  }
-
-  el.innerHTML = `
-    <div class="budget-row">
-      <span class="label">今月の合計</span>
-      <span class="value">${fmtYen(monthTotal)}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((val/maxVal)*100)}%"></div></div>
     </div>
-    ${progressHtml}
-    ${catHtml}
-    <div class="budget-set">
-      <input type="number" id="budgetInput" placeholder="月の予算額を入力" value="${monthlyBudget || ""}">
-      <button onclick="updateBudget()">予算を更新</button>
-    </div>
-  `;
+  `).join("");
+  el.innerHTML = rows;
 }
 
 function renderLedger(){
   const el = document.getElementById("ledgerCard");
   if(transactions.length === 0){
-    el.innerHTML = `<div class="empty">記録はまだありません。<br>上のフォームから最初の記録を追加しましょう。</div>`;
+    el.innerHTML = `<div class="empty">まだ記録がありません。</div>`;
     return;
   }
-  el.innerHTML = transactions.map(t => `
+
+  const visible = ledgerExpanded ? transactions : transactions.slice(0, LEDGER_DEFAULT);
+  const rows = visible.map(t => `
     <div class="tx-row">
       <span class="tx-date">${fmtShortDate(t.date)}</span>
       <span class="tx-payer ${t.payer}">${PEOPLE[t.payer].label}</span>
@@ -657,10 +391,23 @@ function renderLedger(){
       <button class="tx-del" title="削除" onclick="deleteTransaction('${t.id}')">✕</button>
     </div>
   `).join("");
+
+  const moreBtn = (transactions.length > LEDGER_DEFAULT)
+    ? `<button class="show-more-btn" onclick="toggleLedger()">
+        ${ledgerExpanded ? "▲ 折りたたむ" : "▼ 全件表示（あと${transactions.length - LEDGER_DEFAULT}件）"}
+       </button>`.replace("${transactions.length - LEDGER_DEFAULT}", transactions.length - LEDGER_DEFAULT)
+    : "";
+
+  el.innerHTML = rows + moreBtn;
+}
+
+function toggleLedger(){
+  ledgerExpanded = !ledgerExpanded;
+  renderLedger();
 }
 
 refreshData();
-pollTimer = setInterval(refreshData, POLL_INTERVAL_MS);
+setInterval(refreshData, POLL_MS);
 </script>
 </body>
 </html>
