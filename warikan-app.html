@@ -430,6 +430,10 @@ function setSyncStatus(state, text){
   document.getElementById("syncText").textContent = text;
 }
 
+function showFormMsg(msg){
+  document.getElementById("formMsg").textContent = msg;
+}
+
 async function refreshData(){
   if(!APPS_SCRIPT_URL){
     document.getElementById("configWarning").style.display = "block";
