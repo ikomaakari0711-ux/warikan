@@ -440,9 +440,7 @@ async function refreshData(){
   document.getElementById("configWarning").style.display = "none";
   setSyncStatus("", "同期中…");
   try{
-    const res = await fetch(APPS_SCRIPT_URL, { method: "GET" });
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
+    const data = await gasRequest({});
     transactions = (data.transactions || []).sort((a,b) => (b.date+b.id).localeCompare(a.date+a.id));
     monthlyBudget = data.budget || null;
     setSyncStatus("ok", "同期済み ・ " + new Date().toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"}));
@@ -452,9 +450,34 @@ async function refreshData(){
   renderAll();
 }
 
+function gasRequest(params){
+  return new Promise((resolve, reject) => {
+    const cbName = "_gcb_" + Date.now() + "_" + Math.random().toString(36).slice(2,6);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error("timeout"));
+    }, 10000);
+    window[cbName] = function(data){
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      resolve(data);
+    };
+    const p = new URLSearchParams({...params, callback: cbName});
+    const script = document.createElement("script");
+    script.src = APPS_SCRIPT_URL + "?" + p.toString();
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      reject(new Error("script error"));
+    };
+    document.head.appendChild(script);
+  });
+}
+
 async function apiPost(payload){
-  const params = new URLSearchParams(payload);
-  await fetch(APPS_SCRIPT_URL + "?" + params.toString(), { method: "GET" });
+  await gasRequest(payload);
 }
 
 async function addTransaction(){
