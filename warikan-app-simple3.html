@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>藍と紅の家計帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F0EEE1;
+    --paper-deep:#E7E3D2;
+    --ink:#24344D;
+    --ink-soft:#63728A;
+    --kenya:#345C7C;
+    --kenya-soft:#D8E2E9;
+    --akari:#9C3F4E;
+    --akari-soft:#EEDBDD;
+    --stamp:#BF3B30;
+    --card:#FBFAF3;
+    --line:#D8D2BC;
+    --shadow: 0 6px 18px rgba(36,52,77,0.09);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--paper);
+    color:var(--ink);
+    font-family:"Noto Sans JP", sans-serif;
+    min-height:100vh;
+    padding: 28px 16px 60px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+
+  .book{
+    max-width: 700px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 4px 14px 14px 4px;
+    box-shadow: 0 3px 12px rgba(36,52,77,0.07);
+    position: relative;
+    padding: 28px clamp(16px, 4vw, 38px) 34px;
+    border: 1px solid var(--line);
+  }
+  .book::before{
+    content:"";
+    position:absolute;
+    left:-1px; top:0; bottom:0;
+    width:20px;
+    border-radius:4px 0 0 4px;
+    background:
+      linear-gradient(90deg, rgba(36,52,77,0.12), transparent 90%),
+      repeating-radial-gradient(circle at 10px 0, var(--ink-soft) 0 2.2px, transparent 2.3px 34px);
+    background-position: 0 14px, 0 14px;
+    opacity: .55;
+  }
+
+  header{
+    padding-left: 14px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px;
+  }
+  h1{
+    font-family:"Shippori Mincho", serif;
+    font-weight:700;
+    font-size: clamp(24px, 5vw, 32px);
+    margin: 0 0 6px;
+    letter-spacing: .04em;
+  }
+  .sub{
+    color: var(--ink-soft);
+    font-size: 13px;
+    letter-spacing: .08em;
+  }
+  .sync-bar button{
+    border:1px solid var(--line); background:#fff; color:var(--ink-soft);
+    border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer;
+  }
+  .sync-bar button:hover{ color:var(--ink); }
+  .sync-dot{ width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; background:#9AA6B2; }
+  .sync-dot.ok{ background:#3E8E5A; }
+  .sync-dot.err{ background:var(--stamp); }
+
+  .config-warning{
+    margin: 0 0 24px 14px;
+    background: var(--akari-soft);
+    border: 1px solid var(--akari);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .config-warning code{
+    background: rgba(255,255,255,0.6);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  section{ padding-left: 14px; margin-bottom: 30px; }
+  h2{
+    font-family:"Shippori Mincho", serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  h2::before{
+    content:"";
+    width:6px;height:6px;
+    background:var(--stamp);
+    display:inline-block;
+    border-radius:1px;
+    transform: rotate(45deg);
+  }
+
+  .form-card{
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .field{ margin-bottom: 16px; }
+  .field label{
+    display:block;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    letter-spacing: .04em;
+  }
+  input[type=text], input[type=number]{
+    width:100%;
+    font-family:"Noto Sans JP", sans-serif;
+    font-size: 16px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--paper);
+    color: var(--ink);
+    outline:none;
+  }
+  input[type=text]:focus, input[type=number]:focus{
+    border-color: var(--ink-soft);
+    box-shadow: 0 0 0 3px rgba(36,52,77,0.08);
+  }
+  .payer-toggle{ display:flex; gap:10px; }
+  .payer-btn{
+    flex:1;
+    padding: 13px 10px;
+    border-radius: 8px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    font-family:"Noto Sans JP", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor:pointer;
+    color: var(--ink-soft);
+    transition: all .15s ease;
+  }
+  .payer-btn[data-active="true"][data-person="kenya"]{
+    background: var(--kenya-soft); border-color: var(--kenya); color: var(--kenya);
+  }
+  .payer-btn[data-active="true"][data-person="akari"]{
+    background: var(--akari-soft); border-color: var(--akari); color: var(--akari);
+  }
+  .amount-wrap{ position:relative; }
+  .amount-wrap span{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    color:var(--ink-soft); font-size:15px;
+  }
+  .amount-wrap input{ padding-left: 30px; }
+
+  .stamp-btn{
+    width:100%;
+    margin-top: 6px;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    background: var(--stamp);
+    color: #fff;
+    font-family:"Shippori Mincho", serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    cursor:pointer;
+    box-shadow: 0 4px 0 rgba(150,45,35,0.5);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .stamp-btn:active{ transform: translateY(3px); box-shadow: 0 1px 0 rgba(150,45,35,0.5); }
+  .stamp-btn:disabled{ background:#c9c2af; box-shadow:none; cursor:not-allowed; }
+  .form-msg{ font-size:12.5px; color:var(--stamp); margin-top:8px; min-height:16px; }
+
+  .scale-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .scale-names{
+    display:flex; justify-content:space-between;
+    font-size: 13px; font-weight:500; margin-bottom: 4px;
+  }
+  .scale-names .kenya{ color:var(--kenya); }
+  .scale-names .akari{ color:var(--akari); }
+  .scale-totals{
+    display:flex; justify-content:space-between;
+    font-size: 19px; font-weight:700; margin-bottom: 10px;
+  }
+  .settle-text{
+    margin-top: 8px;
+    font-size: 14.5px;
+    color: var(--ink);
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 10px 14px;
+    line-height: 1.6;
+  }
+  .settle-text b{ padding: 1px 4px; border-radius: 4px; }
+  .settle-text b.kenya{ color:var(--kenya); background:var(--kenya-soft); }
+  .settle-text b.akari{ color:var(--akari); background:var(--akari-soft); }
+  .budget-row .label{ font-size:13px; color:var(--ink-soft); }
+  .budget-row .value{ font-size: 22px; font-weight:700; }
+  .tx-row{
+    display:flex; align-items:center; gap:10px;
+    padding: 12px 16px;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14px;
+  }
+  .tx-row:last-child{ border-bottom:none; }
+  .tx-date{ color: var(--ink-soft); font-size:12px; width:52px; flex-shrink:0; }
+  .tx-payer{
+    font-size:11px; font-weight:700; padding: 3px 8px; border-radius:20px; flex-shrink:0;
+  }
+  .tx-payer.kenya{ background:var(--kenya-soft); color:var(--kenya); }
+  .tx-payer.akari{ background:var(--akari-soft); color:var(--akari); }
+  .tx-cat{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tx-amount{ font-weight:700; flex-shrink:0; }
+  .tx-del{
+    border:none; background:none; color:var(--ink-soft); cursor:pointer;
+    font-size:15px; padding:4px 6px; flex-shrink:0; border-radius:6px;
+  }
+  .tx-del:hover{ color:var(--stamp); background:var(--paper); }
+
+  .empty{
+    padding: 26px 16px;
+    text-align:center;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    line-height:1.7;
+  }
+  .loading{ text-align:center; color:var(--ink-soft); font-size:13px; padding: 20px; }
+  .footnote{
+    text-align:center; font-size:11.5px; color:var(--ink-soft);
+    margin-top: 26px; letter-spacing:.03em;
+  }
+
+  .balance-bar{
+    height:8px; display:flex; overflow:hidden;
+    background:var(--paper-deep); border-radius:4px;
+    margin: 4px 0 12px;
+  }
+  .balance-bar span{display:block; height:100%;}
+  .balance-bar .kenya{background:var(--kenya);}
+  .balance-bar .akari{background:var(--akari);}
+  .more-btn{
+    width:100%; margin-top:10px; padding:9px;
+    border:1px solid var(--line); border-radius:7px;
+    background:#fff; color:var(--ink-soft);
+    cursor:pointer; font-size:13px;
+  }
+  .more-btn:hover{color:var(--ink);});
+}
+
+
+function showFormMsg(msg){
+  document.getElementById("formMsg").textContent = msg;
+}
+
+async function refreshData(){
+  if(!APPS_SCRIPT_URL){
+    document.getElementById("configWarning").style.display = "block";
+renderAll();
+    return;
+  }
+  document.getElementById("configWarning").style.display = "none";
+try{
+    const data = await gasRequest({});
+    transactions = (data.transactions || []).sort((a,b) => (b.date+b.id).localeCompare(a.date+a.id));
+}catch(e){
+}
+  renderAll();
+}
+
+function gasRequest(params){
+  return new Promise((resolve, reject) => {
+    const cbName = "_gcb_" + Date.now() + "_" + Math.random().toString(36).slice(2,6);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error("timeout"));
+    }, 10000);
+    window[cbName] = function(data){
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      resolve(data);
+    };
+    const p = new URLSearchParams({...params, callback: cbName});
+    const script = document.createElement("script");
+    script.src = APPS_SCRIPT_URL + "?" + p.toString();
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      reject(new Error("script error"));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function apiPost(payload){
+  await gasRequest(payload);
+}
+
+async function addTransaction(){
+  if(!APPS_SCRIPT_URL){
+    showFormMsg("先に保存先の接続設定を済ませてください。");
+    return;
+  }
+  const catInput = document.getElementById("category");
+  const amountInput = document.getElementById("amount");
+  const category = catInput.value.trim();
+  const amount = parseFloat(amountInput.value);
+
+  if(!category){ showFormMsg("項目を入力してください。"); return; }
+  if(!selectedPayer){ showFormMsg("支払った人を選んでください。"); return; }
+  if(!amount || amount <= 0){ showFormMsg("金額を正しく入力してください。"); return; }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  showFormMsg("");
+
+  const entry = {
+    id: Date.now() + "-" + Math.random().toString(36).slice(2,7),
+    category, payer: selectedPayer, amount, date: todayISO()
+  };
+
+  transactions.unshift(entry);
+  renderAll();
+
+  try{
+    await apiPost({ action: "add", ...entry });
+    setTimeout(refreshData, 800);
+  }catch(e){
+    showFormMsg("保存に失敗しました。通信環境をご確認ください。");
+  }
+
+  catInput.value = "";
+  amountInput.value = "";
+  selectedPayer = null;
+  document.querySelectorAll(".payer-btn").forEach(b=>b.dataset.active="false");
+  btn.disabled = false;
+}
+
+async function deleteTransaction(id){
+  transactions = transactions.filter(t => t.id !== id);
+  renderAll();
+  try{
+    await apiPost({ action: "delete", id });
+    setTimeout(refreshData, 800);
+  }catch(e){ /* will resync on next poll */ }
+}
+
+async function updateBudget(){
+  const input = document.getElementById("budgetInput");
+  const val = parseFloat(input.value);
+  monthlyBudget = (val && val > 0) ? val : null;
+  renderAll();
+  try{
+    await apiPost({ action: "setBudget", amount: monthlyBudget || 0 });
+    setTimeout(refreshData, 800);
+  }catch(e){ /* will resync on next poll */ }
+}
+
+function renderAll(){
+  renderScale();
+  const ledger = document.getElementById("ledgerCard");
+  const keepOpen = ledger && ledger.dataset.showAll === "true";
+  renderLedger();
+  if(keepOpen) document.getElementById("ledgerCard").dataset.showAll = "true";
+}
+
+function renderScale(){
+  const el = document.getElementById("scaleCard");
+  const totalKenya = transactions.filter(t=>t.payer==="kenya").reduce((s,t)=>s+t.amount,0);
+  const totalAkari = transactions.filter(t=>t.payer==="akari").reduce((s,t)=>s+t.amount,0);
+  const sum = totalKenya + totalAkari;
+
+  if(sum === 0){
+    el.innerHTML = `<div class="empty">まだ記録がありません。<br>入力するとここに収支バランスが表示されます。</div>`;
+    return;
+  }
+
+  const diff = totalKenya - totalAkari;
+  const settle = Math.abs(diff) / 2;
+  const kenyaPct = (totalKenya / sum) * 100;
+  const akariPct = 100 - kenyaPct;
+
+  let settleHtml;
+  if(Math.round(settle) === 0){
+    settleHtml = `ちょうど半分ずつ負担しています。精算の必要はありません。`;
+  }else if(diff > 0){
+    settleHtml = `<b class="akari">あかり</b>が<b class="kenya">けんや</b>に ${fmtYen(settle)} 渡すと精算されます。`;
+  }else{
+    settleHtml = `<b class="kenya">けんや</b>が<b class="akari">あかり</b>に ${fmtYen(settle)} 渡すと精算されます。`;
+  }
+
+  el.innerHTML = `
+    <div class="scale-names"><span class="kenya">けんや</span><span class="akari">あかり</span></div>
+    <div class="scale-totals">
+      <span style="color:var(--kenya)">${fmtYen(totalKenya)}</span>
+      <span style="color:var(--akari)">${fmtYen(totalAkari)}</span>
+    </div>
+    <div class="balance-bar">
+      <span class="kenya" style="width:${kenyaPct}%"></span>
+      <span class="akari" style="width:${akariPct}%"></span>
+    </div>
+    <div class="settle-text">${settleHtml}</div>
+  `;
+}
+
+
+function renderLedger(){
+  const el = document.getElementById("ledgerCard");
+  if(transactions.length === 0){
+    el.innerHTML = `<div class="empty">記録はまだありません。<br>上のフォームから最初の記録を追加しましょう。</div>`;
+    return;
+  }
+
+  const visibleCount = el.dataset.showAll === "true" ? transactions.length : 5;
+  const visible = transactions.slice(0, visibleCount);
+
+  el.innerHTML = visible.map(t => `
+    <div class="tx-row">
+      <span class="tx-date">${fmtShortDate(t.date)}</span>
+      <span class="tx-payer ${t.payer}">${PEOPLE[t.payer].label}</span>
+      <span class="tx-cat">${escapeHtml(t.category)}</span>
+      <span class="tx-amount">${fmtYen(t.amount)}</span>
+      <button class="tx-del" title="削除" onclick="deleteTransaction('${t.id}')">✕</button>
+    </div>
+  `).join("");
+
+  if(transactions.length > 5 && visibleCount < transactions.length){
+    el.innerHTML += `<button class="more-btn" onclick="this.parentElement.dataset.showAll='true'; renderLedger()">もっと見る（残り ${transactions.length - visibleCount} 件）</button>`;
+  }
+}
+
+refreshData();
+pollTimer = setInterval(refreshData, POLL_INTERVAL_MS);
+</script>
+</body>
+</html>
