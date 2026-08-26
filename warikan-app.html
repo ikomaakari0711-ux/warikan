@@ -62,14 +62,6 @@
     font-size:18px;font-family:"Noto Sans JP",sans-serif;color:var(--ink);background:var(--bg);outline:none;
   }
   .amount-wrap input:focus{border-color:var(--ink-soft);}
-  .submit-btn{
-    width:100%;margin-top:14px;padding:14px;border-radius:8px;border:none;
-    background:var(--accent);color:#fff;font-family:"Noto Sans JP",sans-serif;
-    font-size:16px;font-weight:700;letter-spacing:.06em;cursor:pointer;
-    box-shadow:0 3px 0 rgba(150,45,35,0.4);transition:transform .08s,box-shadow .08s;
-  }
-  .submit-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(150,45,35,0.4);}
-  .submit-btn:disabled{background:#c0bab0;box-shadow:none;cursor:not-allowed;}
   .form-msg{font-size:12px;color:var(--accent);margin-top:8px;min-height:16px;}
 
   /* 記録一覧 */
@@ -161,10 +153,19 @@
   .loading{text-align:center;color:var(--ink-soft);font-size:13px;padding:20px 0;}
 
   /* おごりトグル */
+  .submit-row{display:flex;gap:8px;margin-top:14px;}
+  .submit-btn{
+    flex:7;padding:14px;border-radius:8px;border:none;
+    background:var(--accent);color:#fff;font-family:"Noto Sans JP",sans-serif;
+    font-size:16px;font-weight:700;letter-spacing:.06em;cursor:pointer;
+    box-shadow:0 3px 0 rgba(150,45,35,0.4);transition:transform .08s,box-shadow .08s;
+  }
+  .submit-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(150,45,35,0.4);}
+  .submit-btn:disabled{background:#c0bab0;box-shadow:none;cursor:not-allowed;}
   .ogori-btn{
-    width:100%;padding:11px;border-radius:8px;border:1.5px solid var(--line);
-    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:14px;
-    color:var(--ink-soft);cursor:pointer;transition:all .12s;text-align:center;
+    flex:3;padding:14px 6px;border-radius:8px;border:1.5px solid var(--line);
+    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:13px;
+    color:var(--ink-soft);cursor:pointer;transition:all .12s;text-align:center;line-height:1.3;
   }
   .ogori-btn[data-active="true"]{
     background:#FFF6E0;border-color:#D4A020;color:#A07010;font-weight:700;
@@ -207,11 +208,10 @@
       <span class="yen">¥</span>
       <input type="number" id="amount" min="1" step="1" placeholder="0">
     </div>
-    <div class="field-label">おごり</div>
-    <button type="button" class="ogori-btn" id="ogoriBtn" data-active="false" onclick="toggleOgori()">
-      おごりなし
-    </button>
-    <button class="submit-btn" id="submitBtn" onclick="addTransaction()">記録する</button>
+    <div class="submit-row">
+      <button class="submit-btn" id="submitBtn" onclick="addTransaction()">記録する</button>
+      <button type="button" class="ogori-btn" id="ogoriBtn" data-active="false" onclick="toggleOgori()">おごり</button>
+    </div>
     <div class="form-msg" id="formMsg"></div>
   </div>
 
@@ -274,7 +274,7 @@ function toggleOgori(){
   isOgori = !isOgori;
   const btn = document.getElementById("ogoriBtn");
   btn.dataset.active = isOgori ? "true" : "false";
-  btn.textContent = isOgori ? "🎁 おごり ON（金額×2で記録）" : "おごりなし";
+  btn.textContent = isOgori ? "🎁 ON" : "おごり";
 }
 
 function showFormMsg(msg){ document.getElementById("formMsg").textContent = msg; }
@@ -350,7 +350,7 @@ async function addTransaction(){
   isOgori = false;
   const ogoriBtn = document.getElementById("ogoriBtn");
   ogoriBtn.dataset.active = "false";
-  ogoriBtn.textContent = "おごりなし";
+  ogoriBtn.textContent = "おごり";
   document.querySelectorAll(".payer-btn").forEach(b => b.dataset.active = "false");
   btn.disabled = false;
 }
