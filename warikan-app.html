@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
 <style>
   :root{
     --bg:#F4F1EA;
@@ -27,10 +27,7 @@
 
   .wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
 
-  /* カード共通 */
   .card{background:var(--card);border-radius:12px;border:1px solid var(--line);padding:20px;}
-
-  /* セクション見出し */
   .sec-title{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:14px;}
 
   /* 入力フォーム */
@@ -45,14 +42,11 @@
     width:100%;margin-top:8px;padding:10px 12px;
     border:1.5px solid var(--line);border-radius:8px;
     font-size:14px;font-family:"Noto Sans JP",sans-serif;
-    color:var(--ink);background:var(--bg);outline:none;
-    display:none;
+    color:var(--ink);background:var(--bg);outline:none;display:none;
   }
   .other-input:focus{border-color:var(--ink-soft);}
   .other-input.show{display:block;}
-
   .field-label{font-size:11px;color:var(--ink-soft);letter-spacing:.06em;margin:14px 0 8px;}
-
   .payer-toggle{display:flex;gap:8px;}
   .payer-btn{
     flex:1;padding:12px;border-radius:8px;border:1.5px solid var(--line);
@@ -61,17 +55,13 @@
   }
   .payer-btn[data-active="true"][data-person="kenya"]{background:var(--kenya-soft);border-color:var(--kenya);color:var(--kenya);}
   .payer-btn[data-active="true"][data-person="akari"]{background:var(--akari-soft);border-color:var(--akari);color:var(--akari);}
-
   .amount-wrap{position:relative;}
   .amount-wrap .yen{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-soft);font-size:15px;}
   .amount-wrap input{
-    width:100%;padding:12px 12px 12px 28px;
-    border:1.5px solid var(--line);border-radius:8px;
-    font-size:18px;font-family:"Noto Sans JP",sans-serif;
-    color:var(--ink);background:var(--bg);outline:none;
+    width:100%;padding:12px 12px 12px 28px;border:1.5px solid var(--line);border-radius:8px;
+    font-size:18px;font-family:"Noto Sans JP",sans-serif;color:var(--ink);background:var(--bg);outline:none;
   }
   .amount-wrap input:focus{border-color:var(--ink-soft);}
-
   .submit-btn{
     width:100%;margin-top:14px;padding:14px;border-radius:8px;border:none;
     background:var(--accent);color:#fff;font-family:"Noto Sans JP",sans-serif;
@@ -82,27 +72,47 @@
   .submit-btn:disabled{background:#c0bab0;box-shadow:none;cursor:not-allowed;}
   .form-msg{font-size:12px;color:var(--accent);margin-top:8px;min-height:16px;}
 
-  /* 収支バランス */
-  .balance-row{display:flex;gap:8px;}
-  .balance-person{
-    flex:1;padding:14px 16px;border-radius:10px;
+  /* 記録一覧 */
+  .tx-row{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;
+    transition:background .15s;
   }
-  .balance-person.kenya{background:var(--kenya-soft);}
-  .balance-person.akari{background:var(--akari-soft);}
-  .balance-person .name{font-size:12px;font-weight:700;margin-bottom:4px;}
-  .balance-person.kenya .name{color:var(--kenya);}
-  .balance-person.akari .name{color:var(--akari);}
-  .balance-person .amount{font-size:22px;font-weight:700;}
-  .balance-person.kenya .amount{color:var(--kenya);}
-  .balance-person.akari .amount{color:var(--akari);}
+  .tx-row:last-child{border-bottom:none;}
+  .tx-row.confirming{background:var(--bg);border-radius:8px;padding:11px 8px;}
+  .tx-date{color:var(--ink-soft);font-size:12px;width:44px;flex-shrink:0;}
+  .tx-payer{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
+  .tx-payer.kenya{background:var(--kenya-soft);color:var(--kenya);}
+  .tx-payer.akari{background:var(--akari-soft);color:var(--akari);}
+  .tx-cat{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tx-amount{font-weight:700;flex-shrink:0;}
+  .tx-del{border:none;background:none;color:var(--line);cursor:pointer;font-size:15px;padding:4px 8px;flex-shrink:0;border-radius:6px;}
+  .tx-del:hover{color:var(--accent);background:var(--akari-soft);}
 
-  .settle-box{
-    margin-top:12px;padding:12px 14px;border-radius:8px;
-    background:var(--bg);font-size:14px;line-height:1.7;text-align:center;
+  /* 削除確認パネル */
+  .tx-confirm{
+    display:none;width:100%;padding:10px 8px 6px;
+    border-top:1px dashed var(--line);
+    flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;
   }
-  .settle-box b{padding:1px 5px;border-radius:4px;}
-  .settle-box b.kenya{color:var(--kenya);background:var(--kenya-soft);}
-  .settle-box b.akari{color:var(--akari);background:var(--akari-soft);}
+  .tx-confirm.show{display:flex;}
+  .tx-confirm-msg{font-size:12px;color:var(--ink-soft);flex:1;}
+  .tx-confirm-btns{display:flex;gap:6px;}
+  .btn-cancel{
+    padding:6px 14px;border-radius:6px;border:1.5px solid var(--line);
+    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:12px;color:var(--ink-soft);cursor:pointer;
+  }
+  .btn-delete{
+    padding:6px 14px;border-radius:6px;border:none;
+    background:var(--accent);color:#fff;font-family:"Noto Sans JP",sans-serif;font-size:12px;font-weight:700;cursor:pointer;
+  }
+
+  .show-more-btn{
+    width:100%;margin-top:12px;padding:10px;border-radius:8px;
+    border:1.5px solid var(--line);background:#fff;
+    font-family:"Noto Sans JP",sans-serif;font-size:13px;color:var(--ink-soft);cursor:pointer;
+  }
+  .show-more-btn:hover{color:var(--ink);}
 
   /* カテゴリ棒グラフ */
   .cat-row{margin-bottom:12px;}
@@ -113,28 +123,24 @@
   .bar-track{height:7px;background:var(--line);border-radius:4px;overflow:hidden;}
   .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--kenya),var(--akari));}
 
-  /* 記録一覧 */
-  .tx-row{
-    display:flex;align-items:center;gap:10px;
-    padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;
+  /* 収支バランス */
+  .balance-row{display:flex;gap:8px;}
+  .balance-person{flex:1;padding:14px 16px;border-radius:10px;}
+  .balance-person.kenya{background:var(--kenya-soft);}
+  .balance-person.akari{background:var(--akari-soft);}
+  .balance-person .name{font-size:12px;font-weight:700;margin-bottom:4px;}
+  .balance-person.kenya .name{color:var(--kenya);}
+  .balance-person.akari .name{color:var(--akari);}
+  .balance-person .amount{font-size:22px;font-weight:700;}
+  .balance-person.kenya .amount{color:var(--kenya);}
+  .balance-person.akari .amount{color:var(--akari);}
+  .settle-box{
+    margin-top:12px;padding:12px 14px;border-radius:8px;
+    background:var(--bg);font-size:14px;line-height:1.7;text-align:center;
   }
-  .tx-row:last-child{border-bottom:none;}
-  .tx-date{color:var(--ink-soft);font-size:12px;width:44px;flex-shrink:0;}
-  .tx-payer{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
-  .tx-payer.kenya{background:var(--kenya-soft);color:var(--kenya);}
-  .tx-payer.akari{background:var(--akari-soft);color:var(--akari);}
-  .tx-cat{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .tx-amount{font-weight:700;flex-shrink:0;}
-  .tx-del{border:none;background:none;color:var(--line);cursor:pointer;font-size:15px;padding:2px 6px;flex-shrink:0;border-radius:6px;}
-  .tx-del:hover{color:var(--accent);}
-
-  .show-more-btn{
-    width:100%;margin-top:12px;padding:10px;border-radius:8px;
-    border:1.5px solid var(--line);background:#fff;
-    font-family:"Noto Sans JP",sans-serif;font-size:13px;color:var(--ink-soft);
-    cursor:pointer;
-  }
-  .show-more-btn:hover{color:var(--ink);}
+  .settle-box b{padding:1px 5px;border-radius:4px;}
+  .settle-box b.kenya{color:var(--kenya);background:var(--kenya-soft);}
+  .settle-box b.akari{color:var(--akari);background:var(--akari-soft);}
 
   .empty{padding:20px 0;text-align:center;color:var(--ink-soft);font-size:13px;line-height:1.8;}
   .loading{text-align:center;color:var(--ink-soft);font-size:13px;padding:20px 0;}
@@ -146,7 +152,6 @@
   <!-- 入力フォーム -->
   <div class="card">
     <div class="sec-title">記録する</div>
-
     <div class="field-label">項目</div>
     <div class="cat-chips" id="catChips">
       <button type="button" class="chip" data-cat="スーパー" onclick="selectCat(this)">スーパー</button>
@@ -161,27 +166,24 @@
       <button type="button" class="chip" data-cat="__other__" onclick="selectCat(this)">その他</button>
     </div>
     <input type="text" class="other-input" id="otherInput" placeholder="項目を入力…">
-
     <div class="field-label">支払った人</div>
     <div class="payer-toggle">
       <button type="button" class="payer-btn" data-person="kenya" data-active="false" onclick="selectPayer('kenya')">けんや</button>
       <button type="button" class="payer-btn" data-person="akari" data-active="false" onclick="selectPayer('akari')">あかり</button>
     </div>
-
     <div class="field-label">金額</div>
     <div class="amount-wrap">
       <span class="yen">¥</span>
       <input type="number" id="amount" min="1" step="1" placeholder="0">
     </div>
-
     <button class="submit-btn" id="submitBtn" onclick="addTransaction()">記録する</button>
     <div class="form-msg" id="formMsg"></div>
   </div>
 
-  <!-- 収支バランス -->
+  <!-- 記録一覧 -->
   <div class="card">
-    <div class="sec-title">収支バランス</div>
-    <div id="scaleCard"><div class="loading">読み込み中…</div></div>
+    <div class="sec-title">記録一覧</div>
+    <div id="ledgerCard"><div class="loading">読み込み中…</div></div>
   </div>
 
   <!-- カテゴリ別 -->
@@ -190,10 +192,10 @@
     <div id="catCard"><div class="loading">読み込み中…</div></div>
   </div>
 
-  <!-- 記録一覧 -->
+  <!-- 収支バランス -->
   <div class="card">
-    <div class="sec-title">記録一覧</div>
-    <div id="ledgerCard"><div class="loading">読み込み中…</div></div>
+    <div class="sec-title">収支バランス</div>
+    <div id="scaleCard"><div class="loading">読み込み中…</div></div>
   </div>
 
 </div>
@@ -208,6 +210,7 @@ let transactions = [];
 let selectedPayer = null;
 let selectedCat = null;
 let ledgerExpanded = false;
+let confirmingId = null;
 
 function fmtYen(n){ return "¥" + Math.round(n).toLocaleString("ja-JP"); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
@@ -219,13 +222,8 @@ function selectCat(btn){
   btn.classList.add("active");
   selectedCat = btn.dataset.cat;
   const oi = document.getElementById("otherInput");
-  if(selectedCat === "__other__"){
-    oi.classList.add("show");
-    oi.focus();
-  } else {
-    oi.classList.remove("show");
-    oi.value = "";
-  }
+  if(selectedCat === "__other__"){ oi.classList.add("show"); oi.focus(); }
+  else { oi.classList.remove("show"); oi.value = ""; }
 }
 
 function selectPayer(p){
@@ -274,7 +272,6 @@ async function addTransaction(){
   const amount = parseFloat(amountInput.value);
 
   if(!category){ showFormMsg("項目を選んでください。"); return; }
-  if(selectedCat === "__other__" && !category){ showFormMsg("項目を入力してください。"); return; }
   if(!selectedPayer){ showFormMsg("支払った人を選んでください。"); return; }
   if(!amount || amount <= 0){ showFormMsg("金額を入力してください。"); return; }
 
@@ -297,7 +294,6 @@ async function addTransaction(){
     showFormMsg("保存に失敗しました。");
   }
 
-  // リセット
   document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
   otherInput.classList.remove("show");
   otherInput.value = "";
@@ -308,16 +304,93 @@ async function addTransaction(){
   btn.disabled = false;
 }
 
-async function deleteTransaction(id){
+function requestDelete(id){
+  // 同じ行を再タップしたらキャンセル
+  if(confirmingId === id){
+    confirmingId = null;
+  } else {
+    confirmingId = id;
+  }
+  renderLedger();
+}
+
+function cancelDelete(){
+  confirmingId = null;
+  renderLedger();
+}
+
+async function confirmDelete(id){
+  confirmingId = null;
   transactions = transactions.filter(t => t.id !== id);
   renderAll();
   try{ await gasRequest({ action: "delete", id }); setTimeout(refreshData, 800); }catch(e){}
 }
 
 function renderAll(){
-  renderScale();
-  renderCat();
   renderLedger();
+  renderCat();
+  renderScale();
+}
+
+function renderLedger(){
+  const el = document.getElementById("ledgerCard");
+  if(transactions.length === 0){
+    el.innerHTML = `<div class="empty">まだ記録がありません。</div>`;
+    return;
+  }
+
+  const visible = ledgerExpanded ? transactions : transactions.slice(0, LEDGER_DEFAULT);
+  const rows = visible.map(t => {
+    const isConfirming = confirmingId === t.id;
+    return `
+      <div class="tx-row${isConfirming ? " confirming" : ""}">
+        <span class="tx-date">${fmtShortDate(t.date)}</span>
+        <span class="tx-payer ${t.payer}">${PEOPLE[t.payer].label}</span>
+        <span class="tx-cat">${escapeHtml(t.category)}</span>
+        <span class="tx-amount">${fmtYen(t.amount)}</span>
+        <button class="tx-del" title="削除" onclick="requestDelete('${t.id}')">✕</button>
+      </div>
+      <div class="tx-confirm${isConfirming ? " show" : ""}">
+        <span class="tx-confirm-msg">この記録を削除しますか？</span>
+        <div class="tx-confirm-btns">
+          <button class="btn-cancel" onclick="cancelDelete()">キャンセル</button>
+          <button class="btn-delete" onclick="confirmDelete('${t.id}')">削除する</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const moreBtn = (transactions.length > LEDGER_DEFAULT)
+    ? `<button class="show-more-btn" onclick="toggleLedger()">${ledgerExpanded ? "▲ 折りたたむ" : "▼ 全件表示（あと" + (transactions.length - LEDGER_DEFAULT) + "件）"}</button>`
+    : "";
+
+  el.innerHTML = rows + moreBtn;
+}
+
+function toggleLedger(){
+  ledgerExpanded = !ledgerExpanded;
+  renderLedger();
+}
+
+function renderCat(){
+  const el = document.getElementById("catCard");
+  if(transactions.length === 0){
+    el.innerHTML = `<div class="empty">記録するとここに表示されます。</div>`;
+    return;
+  }
+  const byCat = {};
+  transactions.forEach(t => { byCat[t.category] = (byCat[t.category]||0) + t.amount; });
+  const maxVal = Math.max(...Object.values(byCat));
+  const rows = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat, val])=>`
+    <div class="cat-row">
+      <div class="cat-top">
+        <span class="cat-name">${escapeHtml(cat)}</span>
+        <span class="cat-val">${fmtYen(val)}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((val/maxVal)*100)}%"></div></div>
+    </div>
+  `).join("");
+  el.innerHTML = rows;
 }
 
 function renderScale(){
@@ -355,59 +428,6 @@ function renderScale(){
     </div>
     <div class="settle-box">${settleHtml}</div>
   `;
-}
-
-function renderCat(){
-  const el = document.getElementById("catCard");
-  if(transactions.length === 0){
-    el.innerHTML = `<div class="empty">記録するとここに表示されます。</div>`;
-    return;
-  }
-  const byCat = {};
-  transactions.forEach(t => { byCat[t.category] = (byCat[t.category]||0) + t.amount; });
-  const maxVal = Math.max(...Object.values(byCat));
-  const rows = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat, val])=>`
-    <div class="cat-row">
-      <div class="cat-top">
-        <span class="cat-name">${escapeHtml(cat)}</span>
-        <span class="cat-val">${fmtYen(val)}</span>
-      </div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((val/maxVal)*100)}%"></div></div>
-    </div>
-  `).join("");
-  el.innerHTML = rows;
-}
-
-function renderLedger(){
-  const el = document.getElementById("ledgerCard");
-  if(transactions.length === 0){
-    el.innerHTML = `<div class="empty">まだ記録がありません。</div>`;
-    return;
-  }
-
-  const visible = ledgerExpanded ? transactions : transactions.slice(0, LEDGER_DEFAULT);
-  const rows = visible.map(t => `
-    <div class="tx-row">
-      <span class="tx-date">${fmtShortDate(t.date)}</span>
-      <span class="tx-payer ${t.payer}">${PEOPLE[t.payer].label}</span>
-      <span class="tx-cat">${escapeHtml(t.category)}</span>
-      <span class="tx-amount">${fmtYen(t.amount)}</span>
-      <button class="tx-del" title="削除" onclick="deleteTransaction('${t.id}')">✕</button>
-    </div>
-  `).join("");
-
-  const moreBtn = (transactions.length > LEDGER_DEFAULT)
-    ? `<button class="show-more-btn" onclick="toggleLedger()">
-        ${ledgerExpanded ? "▲ 折りたたむ" : "▼ 全件表示（あと${transactions.length - LEDGER_DEFAULT}件）"}
-       </button>`.replace("${transactions.length - LEDGER_DEFAULT}", transactions.length - LEDGER_DEFAULT)
-    : "";
-
-  el.innerHTML = rows + moreBtn;
-}
-
-function toggleLedger(){
-  ledgerExpanded = !ledgerExpanded;
-  renderLedger();
 }
 
 refreshData();
