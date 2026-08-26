@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>藍と紅の家計帳</title>
+<title>あさだファミリーのオサイフ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -73,38 +73,53 @@
   .form-msg{font-size:12px;color:var(--accent);margin-top:8px;min-height:16px;}
 
   /* 記録一覧 */
+  .tx-item{border-bottom:1px solid var(--line);}
+  .tx-item:last-child{border-bottom:none;}
   .tx-row{
     display:flex;align-items:center;gap:10px;
-    padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;
-    transition:background .15s;
+    padding:11px 0;font-size:14px;cursor:pointer;
   }
-  .tx-row:last-child{border-bottom:none;}
-  .tx-row.confirming{background:var(--bg);border-radius:8px;padding:11px 8px;}
+  .tx-row:hover .tx-cat{text-decoration:underline;text-underline-offset:3px;}
   .tx-date{color:var(--ink-soft);font-size:12px;width:44px;flex-shrink:0;}
   .tx-payer{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
   .tx-payer.kenya{background:var(--kenya-soft);color:var(--kenya);}
   .tx-payer.akari{background:var(--akari-soft);color:var(--akari);}
   .tx-cat{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .tx-amount{font-weight:700;flex-shrink:0;}
-  .tx-del{border:none;background:none;color:var(--line);cursor:pointer;font-size:15px;padding:4px 8px;flex-shrink:0;border-radius:6px;}
-  .tx-del:hover{color:var(--accent);background:var(--akari-soft);}
+  .tx-hint{font-size:11px;color:var(--line);flex-shrink:0;}
 
-  /* 削除確認パネル */
-  .tx-confirm{
-    display:none;width:100%;padding:10px 8px 6px;
-    border-top:1px dashed var(--line);
-    flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;
+  /* 操作パネル（削除・金額変更） */
+  .tx-panel{
+    display:none;padding:10px 8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;
   }
-  .tx-confirm.show{display:flex;}
-  .tx-confirm-msg{font-size:12px;color:var(--ink-soft);flex:1;}
-  .tx-confirm-btns{display:flex;gap:6px;}
+  .tx-panel.show{display:block;}
+  .tx-panel-btns{display:flex;gap:8px;margin-bottom:0;}
+  .tx-panel.editing .tx-panel-btns{margin-bottom:10px;}
+  .btn-edit{
+    flex:1;padding:9px;border-radius:7px;border:1.5px solid var(--line);
+    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:13px;color:var(--ink);cursor:pointer;
+  }
+  .btn-edit:hover{border-color:var(--ink-soft);}
+  .btn-del-confirm{
+    flex:1;padding:9px;border-radius:7px;border:none;
+    background:var(--accent);color:#fff;font-family:"Noto Sans JP",sans-serif;font-size:13px;font-weight:700;cursor:pointer;
+  }
   .btn-cancel{
-    padding:6px 14px;border-radius:6px;border:1.5px solid var(--line);
-    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:12px;color:var(--ink-soft);cursor:pointer;
+    flex:1;padding:9px;border-radius:7px;border:1.5px solid var(--line);
+    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:13px;color:var(--ink-soft);cursor:pointer;
   }
-  .btn-delete{
-    padding:6px 14px;border-radius:6px;border:none;
-    background:var(--accent);color:#fff;font-family:"Noto Sans JP",sans-serif;font-size:12px;font-weight:700;cursor:pointer;
+
+  /* 金額変更エリア */
+  .edit-area{display:none;}
+  .tx-panel.editing .edit-area{display:flex;gap:8px;align-items:center;}
+  .edit-area input{
+    flex:1;padding:9px 12px;border:1.5px solid var(--line);border-radius:7px;
+    font-size:16px;font-family:"Noto Sans JP",sans-serif;color:var(--ink);background:#fff;outline:none;
+  }
+  .edit-area input:focus{border-color:var(--ink-soft);}
+  .btn-save{
+    padding:9px 16px;border-radius:7px;border:none;
+    background:var(--kenya);color:#fff;font-family:"Noto Sans JP",sans-serif;font-size:13px;font-weight:700;cursor:pointer;
   }
 
   .show-more-btn{
@@ -210,7 +225,8 @@ let transactions = [];
 let selectedPayer = null;
 let selectedCat = null;
 let ledgerExpanded = false;
-let confirmingId = null;
+let activeId = null;   // 操作パネルが開いている行のid
+let editingId = null;  // 金額変更モードの行のid
 
 function fmtYen(n){ return "¥" + Math.round(n).toLocaleString("ja-JP"); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
@@ -304,26 +320,62 @@ async function addTransaction(){
   btn.disabled = false;
 }
 
-function requestDelete(id){
-  // 同じ行を再タップしたらキャンセル
-  if(confirmingId === id){
-    confirmingId = null;
+// 項目をタップ → パネル開閉
+function togglePanel(id){
+  if(activeId === id){
+    activeId = null;
+    editingId = null;
   } else {
-    confirmingId = id;
+    activeId = id;
+    editingId = null;
   }
   renderLedger();
 }
 
-function cancelDelete(){
-  confirmingId = null;
+// 金額変更モードに切り替え
+function startEdit(id){
+  editingId = id;
+  renderLedger();
+  // 入力欄にフォーカス
+  const input = document.getElementById("edit-input-" + id);
+  if(input){ input.focus(); }
+}
+
+// キャンセル
+function cancelPanel(){
+  activeId = null;
+  editingId = null;
   renderLedger();
 }
 
+// 削除実行
 async function confirmDelete(id){
-  confirmingId = null;
+  activeId = null;
+  editingId = null;
   transactions = transactions.filter(t => t.id !== id);
   renderAll();
   try{ await gasRequest({ action: "delete", id }); setTimeout(refreshData, 800); }catch(e){}
+}
+
+// 金額変更を保存
+async function saveEdit(id){
+  const input = document.getElementById("edit-input-" + id);
+  const newAmount = parseFloat(input.value);
+  if(!newAmount || newAmount <= 0){ input.focus(); return; }
+
+  const tx = transactions.find(t => t.id === id);
+  if(!tx) return;
+  tx.amount = newAmount;
+  activeId = null;
+  editingId = null;
+  renderAll();
+
+  // GASには削除→再追加で更新する
+  try{
+    await gasRequest({ action: "delete", id });
+    await gasRequest({ action: "add", ...tx });
+    setTimeout(refreshData, 800);
+  }catch(e){}
 }
 
 function renderAll(){
@@ -341,20 +393,27 @@ function renderLedger(){
 
   const visible = ledgerExpanded ? transactions : transactions.slice(0, LEDGER_DEFAULT);
   const rows = visible.map(t => {
-    const isConfirming = confirmingId === t.id;
+    const isActive = activeId === t.id;
+    const isEditing = editingId === t.id;
     return `
-      <div class="tx-row${isConfirming ? " confirming" : ""}">
-        <span class="tx-date">${fmtShortDate(t.date)}</span>
-        <span class="tx-payer ${t.payer}">${PEOPLE[t.payer].label}</span>
-        <span class="tx-cat">${escapeHtml(t.category)}</span>
-        <span class="tx-amount">${fmtYen(t.amount)}</span>
-        <button class="tx-del" title="削除" onclick="requestDelete('${t.id}')">✕</button>
-      </div>
-      <div class="tx-confirm${isConfirming ? " show" : ""}">
-        <span class="tx-confirm-msg">この記録を削除しますか？</span>
-        <div class="tx-confirm-btns">
-          <button class="btn-cancel" onclick="cancelDelete()">キャンセル</button>
-          <button class="btn-delete" onclick="confirmDelete('${t.id}')">削除する</button>
+      <div class="tx-item">
+        <div class="tx-row" onclick="togglePanel('${t.id}')">
+          <span class="tx-date">${fmtShortDate(t.date)}</span>
+          <span class="tx-payer ${t.payer}">${PEOPLE[t.payer].label}</span>
+          <span class="tx-cat">${escapeHtml(t.category)}</span>
+          <span class="tx-amount">${fmtYen(t.amount)}</span>
+          <span class="tx-hint">${isActive ? "▲" : "…"}</span>
+        </div>
+        <div class="tx-panel${isActive ? " show" : ""}${isEditing ? " editing" : ""}">
+          <div class="tx-panel-btns">
+            <button class="btn-edit" onclick="startEdit('${t.id}')">金額を変更</button>
+            <button class="btn-del-confirm" onclick="confirmDelete('${t.id}')">削除する</button>
+            <button class="btn-cancel" onclick="cancelPanel()">キャンセル</button>
+          </div>
+          <div class="edit-area">
+            <input type="number" id="edit-input-${t.id}" value="${t.amount}" min="1" step="1" placeholder="新しい金額">
+            <button class="btn-save" onclick="saveEdit('${t.id}')">保存</button>
+          </div>
         </div>
       </div>
     `;
