@@ -159,6 +159,22 @@
 
   .empty{padding:20px 0;text-align:center;color:var(--ink-soft);font-size:13px;line-height:1.8;}
   .loading{text-align:center;color:var(--ink-soft);font-size:13px;padding:20px 0;}
+
+  /* おごりトグル */
+  .ogori-btn{
+    width:100%;padding:11px;border-radius:8px;border:1.5px solid var(--line);
+    background:#fff;font-family:"Noto Sans JP",sans-serif;font-size:14px;
+    color:var(--ink-soft);cursor:pointer;transition:all .12s;text-align:center;
+  }
+  .ogori-btn[data-active="true"]{
+    background:#FFF6E0;border-color:#D4A020;color:#A07010;font-weight:700;
+  }
+
+  /* おごりバッジ */
+  .tx-ogori{
+    font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;
+    background:#FFF6E0;color:#A07010;border:1px solid #D4A020;flex-shrink:0;
+  }
 </style>
 </head>
 <body>
@@ -191,6 +207,10 @@
       <span class="yen">¥</span>
       <input type="number" id="amount" min="1" step="1" placeholder="0">
     </div>
+    <div class="field-label">おごり</div>
+    <button type="button" class="ogori-btn" id="ogoriBtn" data-active="false" onclick="toggleOgori()">
+      おごりなし
+    </button>
     <button class="submit-btn" id="submitBtn" onclick="addTransaction()">記録する</button>
     <div class="form-msg" id="formMsg"></div>
   </div>
@@ -225,8 +245,9 @@ let transactions = [];
 let selectedPayer = null;
 let selectedCat = null;
 let ledgerExpanded = false;
-let activeId = null;   // 操作パネルが開いている行のid
-let editingId = null;  // 金額変更モードの行のid
+let activeId = null;
+let editingId = null;
+let isOgori = false;
 
 function fmtYen(n){ return "¥" + Math.round(n).toLocaleString("ja-JP"); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
@@ -247,6 +268,13 @@ function selectPayer(p){
   document.querySelectorAll(".payer-btn").forEach(btn=>{
     btn.dataset.active = (btn.dataset.person === p) ? "true" : "false";
   });
+}
+
+function toggleOgori(){
+  isOgori = !isOgori;
+  const btn = document.getElementById("ogoriBtn");
+  btn.dataset.active = isOgori ? "true" : "false";
+  btn.textContent = isOgori ? "🎁 おごり ON（金額×2で記録）" : "おごりなし";
 }
 
 function showFormMsg(msg){ document.getElementById("formMsg").textContent = msg; }
@@ -297,7 +325,10 @@ async function addTransaction(){
 
   const entry = {
     id: Date.now() + "-" + Math.random().toString(36).slice(2,7),
-    category, payer: selectedPayer, amount, date: todayISO()
+    category, payer: selectedPayer,
+    amount: isOgori ? amount * 2 : amount,
+    ogori: isOgori ? "1" : "",
+    date: todayISO()
   };
 
   transactions.unshift(entry);
@@ -316,6 +347,10 @@ async function addTransaction(){
   amountInput.value = "";
   selectedCat = null;
   selectedPayer = null;
+  isOgori = false;
+  const ogoriBtn = document.getElementById("ogoriBtn");
+  ogoriBtn.dataset.active = "false";
+  ogoriBtn.textContent = "おごりなし";
   document.querySelectorAll(".payer-btn").forEach(b => b.dataset.active = "false");
   btn.disabled = false;
 }
@@ -402,6 +437,7 @@ function renderLedger(){
           <span class="tx-payer ${t.payer}">${PEOPLE[t.payer].label}</span>
           <span class="tx-cat">${escapeHtml(t.category)}</span>
           <span class="tx-amount">${fmtYen(t.amount)}</span>
+          ${t.ogori === "1" ? `<span class="tx-ogori">🎁おごり</span>` : ""}
           <span class="tx-hint">${isActive ? "▲" : "…"}</span>
         </div>
         <div class="tx-panel${isActive ? " show" : ""}${isEditing ? " editing" : ""}">
